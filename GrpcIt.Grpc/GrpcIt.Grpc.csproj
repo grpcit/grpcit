@@ -10,6 +10,7 @@
 		<PackageReference Include="Grpc.AspNetCore" Version="2.46.0" />
 	</ItemGroup>
 	<ItemGroup>
-		<Protobuf Include="serial.proto" GrpcServices="Both" />
+		<Protobuf Include="serial.proto" GrpcServices="Server" />
+		<Protobuf Include="socket.proto" GrpcServices="Server" />
 	</ItemGroup>
 </Project>

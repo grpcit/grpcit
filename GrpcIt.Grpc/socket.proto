@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+option csharp_namespace = "GrpcIt";
+
+service Socket {
+	rpc Connect (stream SocketConnectRequest) returns (stream google.protobuf.BytesValue);
+}
+
+message SocketConnectRequest
+{
+	oneof value {
+		SocketOptions options = 1;
+		google.protobuf.BytesValue data = 2;
+	}
+}
+
+message SocketOptions
+{
+	string Address = 1;
+	uint32 Port = 2;
+	SocketType type = 3;
+}
+
+enum SocketType
+{
+	tcpClient = 0;
+	tcpServer = 1;
+	udp = 2;
+}

@@ -13,7 +13,7 @@ public class SerialPortService : GrpcIt.SerialPort.SerialPortBase
         _logger = logger;
     }
 
-    public override async Task Connect(IAsyncStreamReader<ConnectRequest> requestStream, IServerStreamWriter<BytesValue> responseStream, ServerCallContext context)
+    public override async Task Connect(IAsyncStreamReader<SerialPortConnectRequest> requestStream, IServerStreamWriter<BytesValue> responseStream, ServerCallContext context)
     {
         var portSettings = await WaitForPortSettings(requestStream, context.CancellationToken);
 
@@ -49,7 +49,7 @@ public class SerialPortService : GrpcIt.SerialPort.SerialPortBase
 
             await foreach (var req in stream)
             {
-                if (req.ValueCase == ConnectRequest.ValueOneofCase.Data)
+                if (req.ValueCase == SerialPortConnectRequest.ValueOneofCase.Data)
                 {
                     txQueue.Enqueue(req.Data.ToArray());
                 }
@@ -90,13 +90,13 @@ public class SerialPortService : GrpcIt.SerialPort.SerialPortBase
         port.Close();
     }
 
-    private static async Task<SerialPortOptions?> WaitForPortSettings(IAsyncStreamReader<ConnectRequest> requestStream, CancellationToken cancellationToken)
+    private static async Task<SerialPortOptions?> WaitForPortSettings(IAsyncStreamReader<SerialPortConnectRequest> requestStream, CancellationToken cancellationToken)
     {
         var stream = requestStream.ReadAllAsync(cancellationToken);
 
         await foreach (var req in stream)
         {
-            if (req.ValueCase == ConnectRequest.ValueOneofCase.Options)
+            if (req.ValueCase == SerialPortConnectRequest.ValueOneofCase.Options)
             {
                 return req.Options;
             }

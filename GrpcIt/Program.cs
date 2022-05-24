@@ -19,6 +19,7 @@ var app = builder.Build();
 app.UseGrpcWeb();
 
 app.MapGrpcService<SerialPortService>().EnableGrpcWeb();
+app.MapGrpcService<SocketService>().EnableGrpcWeb();
 app.MapGrpcReflectionService();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client.");
 
