@@ -104,4 +104,15 @@ public class SerialPortService : GrpcIt.SerialPort.SerialPortBase
 
         return null;
     }
+
+    public override Task<GetPortNamesResponse> GetPortNames(Empty request, ServerCallContext context)
+    {
+        var ports = System.IO.Ports.SerialPort.GetPortNames();
+
+        var response = new GetPortNamesResponse();
+
+        response.Ports.AddRange(ports);
+
+        return Task.FromResult(response);
+    }
 }

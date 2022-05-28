@@ -1,11 +1,13 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 option csharp_namespace = "GrpcIt";
 
 
 service SerialPort {
 	rpc Connect (stream SerialPortUpStream) returns (stream google.protobuf.BytesValue);
+	rpc GetPortNames (google.protobuf.Empty) returns (GetPortNamesResponse);
 }
 
 message SerialPortUpStream
@@ -18,6 +20,11 @@ message SerialPortUpStream
 
 message SerialPortOptions
 {
-	string PortName = 1;
-	uint32 BaudRate = 2;
+	string portName = 1;
+	uint32 baudRate = 2;
+}
+
+message GetPortNamesResponse
+{
+	repeated string ports = 1;
 }
