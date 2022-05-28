@@ -5,10 +5,10 @@ option csharp_namespace = "GrpcIt";
 
 
 service SerialPort {
-	rpc Connect (stream SerialPortConnectRequest) returns (stream google.protobuf.BytesValue);
+	rpc Connect (stream SerialPortUpStream) returns (stream google.protobuf.BytesValue);
 }
 
-message SerialPortConnectRequest
+message SerialPortUpStream
 {
 	oneof value {
 		SerialPortOptions options = 1;

@@ -14,7 +14,7 @@ public class SocketService : GrpcIt.Socket.SocketBase
         _logger = logger;
     }
 
-    public override async Task Connect(IAsyncStreamReader<SocketConnectRequest> requestStream, IServerStreamWriter<BytesValue> responseStream, ServerCallContext context)
+    public override async Task Connect(IAsyncStreamReader<SocketUpStream> requestStream, IServerStreamWriter<BytesValue> responseStream, ServerCallContext context)
     {
         var portSettings = await WaitForPortSettings(requestStream, context.CancellationToken);
 
@@ -61,7 +61,7 @@ public class SocketService : GrpcIt.Socket.SocketBase
 
             await foreach (var req in stream)
             {
-                if (req.ValueCase == SocketConnectRequest.ValueOneofCase.Data)
+                if (req.ValueCase == SocketUpStream.ValueOneofCase.Data)
                 {
                     txQueue.Enqueue(req.Data.ToArray());
                 }
@@ -100,13 +100,13 @@ public class SocketService : GrpcIt.Socket.SocketBase
         tcpClient.Close();
     }
 
-    private static async Task<SocketOptions?> WaitForPortSettings(IAsyncStreamReader<SocketConnectRequest> requestStream, CancellationToken cancellationToken)
+    private static async Task<SocketOptions?> WaitForPortSettings(IAsyncStreamReader<SocketUpStream> requestStream, CancellationToken cancellationToken)
     {
         var stream = requestStream.ReadAllAsync(cancellationToken);
 
         await foreach (var req in stream)
         {
-            if (req.ValueCase == SocketConnectRequest.ValueOneofCase.Options)
+            if (req.ValueCase == SocketUpStream.ValueOneofCase.Options)
             {
                 return req.Options;
             }

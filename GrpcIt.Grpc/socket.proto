@@ -4,10 +4,10 @@ import "google/protobuf/wrappers.proto";
 option csharp_namespace = "GrpcIt";
 
 service Socket {
-	rpc Connect (stream SocketConnectRequest) returns (stream google.protobuf.BytesValue);
+	rpc Connect (stream SocketUpStream) returns (stream google.protobuf.BytesValue);
 }
 
-message SocketConnectRequest
+message SocketUpStream
 {
 	oneof value {
 		SocketOptions options = 1;
@@ -17,8 +17,8 @@ message SocketConnectRequest
 
 message SocketOptions
 {
-	string Address = 1;
-	uint32 Port = 2;
+	string address = 1;
+	uint32 port = 2;
 	SocketType type = 3;
 }
 
