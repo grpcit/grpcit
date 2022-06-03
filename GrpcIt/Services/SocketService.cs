@@ -16,7 +16,7 @@ public class SocketService : GrpcIt.Socket.SocketBase
 
     public override async Task Connect(IAsyncStreamReader<SocketUpStream> requestStream, IServerStreamWriter<BytesValue> responseStream, ServerCallContext context)
     {
-        var portSettings = await WaitForPortSettings(requestStream, context.CancellationToken);
+        var portSettings = await WaitForPortSettings(requestStream, cancellationToken: context.CancellationToken);
 
         if (portSettings == null)
         {
@@ -34,7 +34,7 @@ public class SocketService : GrpcIt.Socket.SocketBase
             throw new RpcException(new Status(StatusCode.Internal, exp.Message));
         }
 
-        var stream = tcpClient.GetStream();
+        using var stream = tcpClient.GetStream();
 
         async void SendFromRxToGrpcClient()
         {
@@ -43,12 +43,12 @@ public class SocketService : GrpcIt.Socket.SocketBase
                 if (tcpClient.Available > 0)
                 {
                     var buffer = new byte[tcpClient.Available];
-                    await stream.ReadAsync(buffer, 0, buffer.Length);
-                    await responseStream.WriteAsync(new BytesValue { Value = Google.Protobuf.ByteString.CopyFrom(buffer) });
+                    await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken: context.CancellationToken);
+                    await responseStream.WriteAsync(new BytesValue { Value = Google.Protobuf.ByteString.CopyFrom(buffer) }, cancellationToken: context.CancellationToken);
                 }
                 else
                 {
-                    await Task.Delay(10);
+                    await Task.Delay(10, cancellationToken: context.CancellationToken);
                 }
             }
         }
@@ -76,14 +76,15 @@ public class SocketService : GrpcIt.Socket.SocketBase
                 {
                     try
                     {
-                        await stream.WriteAsync(data);
+                        await stream.WriteAsync(data, cancellationToken: context.CancellationToken);
+                        await stream.FlushAsync(cancellationToken: context.CancellationToken);
                         txQueue.TryDequeue(out var _);
                     }
                     catch { }
                 }
                 else
                 {
-                    await Task.Delay(10);
+                    await Task.Delay(10, cancellationToken: context.CancellationToken);
                 }
             }
         }
@@ -94,7 +95,7 @@ public class SocketService : GrpcIt.Socket.SocketBase
 
         while (!context.CancellationToken.IsCancellationRequested && tcpClient.Connected)
         {
-            await Task.Delay(10);
+            await Task.Delay(10, cancellationToken: context.CancellationToken);
         }
 
         tcpClient.Close();
